@@ -595,7 +595,7 @@ export function CategoryFormNew({ initialData }: CategoryFormProps) {
                   Dodatkowe zdjęcia prezentujące produkty z tej kategorii
                 </p>
                 <GalleryUpload
-                  images={gallery}
+                  value={gallery}
                   onChange={setGallery}
                   maxImages={12}
                 />
