@@ -168,7 +168,7 @@ async function RecentProjects() {
                 <div className="flex-1 space-y-1">
                   <p className="font-medium leading-none">{project.title}</p>
                   <p className="text-sm text-muted-foreground">
-                    {project.category.name}
+                    {project.category?.name}
                     {project.vehicleBrand && ` • ${project.vehicleBrand}`}
                   </p>
                 </div>
