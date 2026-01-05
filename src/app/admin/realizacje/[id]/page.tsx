@@ -29,6 +29,23 @@ export default async function EditProjectPage({ params }: Props) {
     notFound()
   }
 
+  // Transform data for the form
+  const formData = {
+    id: project.id,
+    title: project.title,
+    slug: project.slug,
+    description: project.description,
+    categoryId: project.categoryId,
+    vehicleBrand: project.vehicleBrand,
+    vehicleModel: project.vehicleModel,
+    images: project.images ? JSON.parse(project.images) : [],
+    thumbnail: project.thumbnail,
+    metaTitle: project.metaTitle,
+    metaDescription: project.metaDescription,
+    featured: project.featured,
+    published: project.published,
+  }
+
   return (
     <>
       <AdminHeader
@@ -36,7 +53,7 @@ export default async function EditProjectPage({ params }: Props) {
         description={project.title}
       />
       <div className="p-6">
-        <ProjectForm categories={categories} initialData={project} />
+        <ProjectForm categories={categories} initialData={formData} />
       </div>
     </>
   )
