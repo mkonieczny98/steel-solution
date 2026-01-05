@@ -451,7 +451,7 @@ export function VehicleBrandFormNew({ initialData }: VehicleBrandFormProps) {
                   Dodatkowe zdjęcia prezentujące realizacje dla tej marki
                 </p>
                 <GalleryUpload
-                  images={gallery}
+                  value={gallery}
                   onChange={setGallery}
                   maxImages={12}
                 />
