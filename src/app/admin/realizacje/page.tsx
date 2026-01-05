@@ -107,7 +107,7 @@ export default async function RealizacjePage() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{project.category.name}</Badge>
+                        <Badge variant="outline">{project.category?.name || 'Brak kategorii'}</Badge>
                       </TableCell>
                       <TableCell>
                         {project.vehicleBrand && (
