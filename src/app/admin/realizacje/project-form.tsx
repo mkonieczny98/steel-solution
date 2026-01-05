@@ -50,7 +50,7 @@ interface ProjectFormProps {
     id: string
     title: string
     slug: string
-    description: string
+    description: string | null
     categoryId: string
     vehicleBrand: string | null
     vehicleModel: string | null
