@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  image     String?
+  role      String    @default("EDITOR")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model Category {
+  id                 String    @id @default(cuid())
+  name               String
+  slug               String    @unique
+  description        String?
+  longDescription    String?
+  contentDescription String?   // Opis wyświetlany w sekcji między produktami a galerią
+  image              String?
+  heroImage          String?
+  gallery            String    @default("[]")
+  icon               String?
+  color              String    @default("blue")
+  features        String    @default("[]")
+  benefits        String    @default("[]")
+  specifications  String    @default("[]")
+  metaTitle       String?
+  metaDescription String?
+  sortOrder       Int       @default(0)
+  published       Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  projects        Project[]
+  vehicleBrands   CategoryVehicleBrand[]
+}
+
+model VehicleBrand {
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  fullName           String?
+  description        String?
+  longDescription    String?
+  contentDescription String?  // Opis wyświetlany w sekcji między produktami a galerią
+  image              String?
+  heroImage          String?
+  gallery            String   @default("[]")
+  logo            String?
+  type            String   @default("truck")
+  models          String   @default("[]")
+  metaTitle       String?
+  metaDescription String?
+  sortOrder       Int      @default(0)
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  categories      CategoryVehicleBrand[]
+}
+
+// Tabela łącząca - relacja many-to-many między kategoriami a markami pojazdów
+model CategoryVehicleBrand {
+  id             String       @id @default(cuid())
+  categoryId     String
+  vehicleBrandId String
+  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  vehicleBrand   VehicleBrand @relation(fields: [vehicleBrandId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([categoryId, vehicleBrandId])
+  @@index([categoryId])
+  @@index([vehicleBrandId])
+}
+
+model Project {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  description     String?
+  content         String?
+  thumbnail       String?
+  images          String    @default("[]")
+  vehicleBrand    String?
+  vehicleModel    String?
+  year            String?
+  metaTitle       String?
+  metaDescription String?
+  featured        Boolean   @default(false)
+  published       Boolean   @default(false)
+  categoryId      String?
+  authorId        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  category        Category? @relation(fields: [categoryId], references: [id])
+  author          User      @relation(fields: [authorId], references: [id])
+
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  url         String
+  alt         String?
+  createdAt   DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
