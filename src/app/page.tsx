@@ -238,7 +238,7 @@ export default async function HomePage() {
                   </div>
                   <div className="p-5">
                     <Badge variant="outline" className="mb-2">
-                      {project.category.name}
+                      {project.category?.name || 'Realizacja'}
                     </Badge>
                     <h3 className="font-semibold group-hover:text-primary">
                       {project.title}
