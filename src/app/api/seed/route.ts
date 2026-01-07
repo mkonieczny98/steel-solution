@@ -21,20 +21,20 @@ export async function GET(request: NextRequest) {
 
     // ===== VEHICLE BRANDS =====
     const vehicleBrandsData = [
-      { name: 'MAN', slug: 'man', country: 'Niemcy', logo: '', published: true },
-      { name: 'Scania', slug: 'scania', country: 'Szwecja', logo: '', published: true },
-      { name: 'Volvo', slug: 'volvo', country: 'Szwecja', logo: '', published: true },
-      { name: 'Mercedes', slug: 'mercedes', country: 'Niemcy', logo: '', published: true },
-      { name: 'Renault', slug: 'renault', country: 'Francja', logo: '', published: true },
-      { name: 'Iveco', slug: 'iveco', country: 'Włochy', logo: '', published: true },
-      { name: 'DAF', slug: 'daf', country: 'Holandia', logo: '', published: true },
-      { name: 'Toyota Hilux', slug: 'toyota-hilux', country: 'Japonia', logo: '', published: true },
-      { name: 'Ford Ranger', slug: 'ford-ranger', country: 'USA', logo: '', published: true },
-      { name: 'Nissan Navara', slug: 'nissan-navara', country: 'Japonia', logo: '', published: true },
-      { name: 'Mitsubishi L200', slug: 'mitsubishi-l200', country: 'Japonia', logo: '', published: true },
-      { name: 'Volkswagen Amarok', slug: 'volkswagen-amarok', country: 'Niemcy', logo: '', published: true },
-      { name: 'Isuzu D-Max', slug: 'isuzu-dmax', country: 'Japonia', logo: '', published: true },
-      { name: 'SsangYong Musso', slug: 'ssangyong-musso', country: 'Korea', logo: '', published: true },
+      { name: 'MAN', slug: 'man', logo: '', published: true },
+      { name: 'Scania', slug: 'scania', logo: '', published: true },
+      { name: 'Volvo', slug: 'volvo', logo: '', published: true },
+      { name: 'Mercedes', slug: 'mercedes', logo: '', published: true },
+      { name: 'Renault', slug: 'renault', logo: '', published: true },
+      { name: 'Iveco', slug: 'iveco', logo: '', published: true },
+      { name: 'DAF', slug: 'daf', logo: '', published: true },
+      { name: 'Toyota Hilux', slug: 'toyota-hilux', logo: '', published: true },
+      { name: 'Ford Ranger', slug: 'ford-ranger', logo: '', published: true },
+      { name: 'Nissan Navara', slug: 'nissan-navara', logo: '', published: true },
+      { name: 'Mitsubishi L200', slug: 'mitsubishi-l200', logo: '', published: true },
+      { name: 'Volkswagen Amarok', slug: 'volkswagen-amarok', logo: '', published: true },
+      { name: 'Isuzu D-Max', slug: 'isuzu-dmax', logo: '', published: true },
+      { name: 'SsangYong Musso', slug: 'ssangyong-musso', logo: '', published: true },
     ]
     const vehicleBrands: Record<string, any> = {}
     for (const brand of vehicleBrandsData) {
