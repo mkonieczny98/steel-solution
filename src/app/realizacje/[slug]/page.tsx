@@ -92,7 +92,7 @@ export default async function ProjectPage({ params }: Props) {
                 </Button>
 
                 <Badge variant="outline" className="mb-4">
-                  {project.category.name}
+                  {project.category?.name || 'Realizacja'}
                 </Badge>
 
                 <h1 className="text-3xl font-bold md:text-4xl">{project.title}</h1>

@@ -97,7 +97,7 @@ export default async function RealizacjePage() {
                     </div>
                     <div className="p-5">
                       <Badge variant="outline" className="mb-2">
-                        {project.category.name}
+                        {project.category?.name || 'Realizacja'}
                       </Badge>
                       <h2 className="text-lg font-semibold group-hover:text-primary">
                         {project.title}
