@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { AdminHeader } from '@/components/admin/header'
 import { ProjectForm } from '../project-form'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: { id: string }
 }

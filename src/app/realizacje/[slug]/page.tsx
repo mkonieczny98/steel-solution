@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { PublicHeader } from '@/components/public/header'
+
+export const dynamic = 'force-dynamic'
 import { PublicFooter } from '@/components/public/footer'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { PublicHeader } from '@/components/public/header'
+
+export const dynamic = 'force-dynamic'
 import { PublicFooter } from '@/components/public/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'

@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { AdminHeader } from '@/components/admin/header'
 import { ProjectForm } from '../project-form'
 
+export const dynamic = 'force-dynamic'
+
 async function getCategories() {
   return prisma.category.findMany({
     orderBy: { sortOrder: 'asc' },
