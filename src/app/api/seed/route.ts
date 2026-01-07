@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       { name: 'Isuzu D-Max', slug: 'isuzu-dmax', country: 'Japonia', logo: '', published: true },
       { name: 'SsangYong Musso', slug: 'ssangyong-musso', country: 'Korea', logo: '', published: true },
     ]
-    const vehicleBrands = {}
+    const vehicleBrands: Record<string, any> = {}
     for (const brand of vehicleBrandsData) {
       const created = await prisma.vehicleBrand.upsert({
         where: { slug: brand.slug },
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       // ...i kolejne kategorie...
       { name: 'Oświetlenie LED', slug: 'oswietlenie-led', icon: 'Lightbulb', color: '#f59e0b', description: 'Lampy robocze LED, listwy sceniczne i oświetlenie skrytek. Wysoka jasność, niskie zużycie.', longDescription: 'Profesjonalne oświetlenie LED do pojazdów ratunkowych - lampy robocze, listwy sceniczne, oświetlenie skrytek i przestrzeni ładunkowej.', contentDescription: 'Dobre oświetlenie to podstawa bezpiecznej pracy podczas nocnych akcji. Oferujemy lampy robocze LED o jasności do 15000 lumenów, listwy sceniczne do oświetlenia terenu wokół pojazdu oraz oświetlenie skrytek z automatycznym włączaniem. Wszystkie produkty w klasie szczelności IP67 lub wyższej.', features: JSON.stringify(['Lampy robocze LED','Listwy sceniczne','Oświetlenie skrytek','Lampy ostrzegawcze']), benefits: JSON.stringify(['Wysoka jasność do 15000 lm','Niskie zużycie energii','Klasa szczelności IP67+','Długa żywotność LED']), specifications: JSON.stringify([{ label: 'Technologia', value: 'LED CREE / OSRAM' },{ label: 'Jasność', value: 'Do 15000 lumenów' },{ label: 'Szczelność', value: 'IP67 - IP69K' },{ label: 'Gwarancja', value: '24 miesiące' }]), heroImage: '', gallery: JSON.stringify([]), metaTitle: 'Oświetlenie LED do pojazdów', metaDescription: 'Profesjonalne oświetlenie LED dla służb ratunkowych.', sortOrder: 7, published: true, vehicleSlugs: ['man', 'scania', 'volvo', 'mercedes', 'iveco', 'toyota-hilux', 'ford-ranger'] },
     ]
-    const categories = {}
+    const categories: Record<string, any> = {}
     for (const cat of categoriesData) {
       const { vehicleSlugs, ...categoryData } = cat
       const created = await prisma.category.upsert({
