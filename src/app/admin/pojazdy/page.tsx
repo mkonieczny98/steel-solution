@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { AdminHeader } from '@/components/admin/header'
-import { Plus, Truck, Car, Edit, Eye, EyeOff } from 'lucide-react'
+import { Plus, Truck, Car, Edit, Eye, EyeOff, LayoutTemplate } from 'lucide-react'
 
 async function getVehicleBrands() {
   return prisma.vehicleBrand.findMany({
@@ -143,6 +143,12 @@ export default async function VehicleBrandsPage() {
                         </TableCell>
                         <TableCell>{brand.sortOrder}</TableCell>
                         <TableCell className="text-right">
+                          <Button variant="outline" size="sm" asChild className="mr-1">
+                            <Link href={`/admin/pojazdy/${brand.id}/uklad`}>
+                              <LayoutTemplate className="mr-1.5 h-4 w-4" />
+                              Układ strony
+                            </Link>
+                          </Button>
                           <Button variant="ghost" size="sm" asChild>
                             <Link href={`/admin/pojazdy/${brand.id}`}>
                               <Edit className="h-4 w-4" />

@@ -1,3 +1,5 @@
+import { revalidateTag } from 'next/cache'
+import { CONTENT_TAG } from '@/lib/data'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -81,6 +83,7 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json(category, { status: 201 })
   } catch (error) {

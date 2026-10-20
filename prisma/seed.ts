@@ -1,5 +1,35 @@
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcryptjs"
+import { IMAGES } from "../src/lib/images"
+
+// Zdjęcia poglądowe – podmień w panelu admina na zdjęcia własnych realizacji.
+const brandImages: Record<string, { heroImage: string; gallery: string[] }> = {
+  man: { heroImage: IMAGES.heroTruck, gallery: [IMAGES.fireTruckForest, IMAGES.hoseCompartment, IMAGES.firefighterGear] },
+  scania: { heroImage: IMAGES.fireTruckRed, gallery: [IMAGES.fireTruckRed, IMAGES.firefighterStation] },
+  volvo: { heroImage: IMAGES.fireTruckForest, gallery: [IMAGES.fireTruckForest, IMAGES.hoseCompartment] },
+  mercedes: { heroImage: IMAGES.ladderTruck, gallery: [IMAGES.ladderTruck, IMAGES.ladderBuilding, IMAGES.firefighterGear] },
+  renault: { heroImage: IMAGES.fireTruckSide, gallery: [IMAGES.fireTruckSide] },
+  iveco: { heroImage: IMAGES.fireTruckNight, gallery: [IMAGES.fireTruckNight] },
+  daf: { heroImage: IMAGES.firefighterStation, gallery: [IMAGES.firefighterStation] },
+}
+const pickupImages = [IMAGES.hiluxWhite, IMAGES.hiluxBlack, IMAGES.hiluxSilver, IMAGES.pickupForest]
+
+const categoryImages: Record<string, { image: string; heroImage: string; gallery: string[] }> = {
+  'wozy-strazackie': { image: IMAGES.fireTruckForest, heroImage: IMAGES.fireTruckGarage, gallery: [IMAGES.fireTruckForest, IMAGES.hoseCompartment, IMAGES.ladderTruck, IMAGES.fireTruckSide, IMAGES.weldingSparks] },
+  'polki-do-kabin': { image: IMAGES.firefighterStation, heroImage: IMAGES.firefighterStation, gallery: [IMAGES.firefighterGear, IMAGES.toolWall, IMAGES.measuring] },
+  'podesty-i-stopnie': { image: IMAGES.fireTruckSide, heroImage: IMAGES.fireTruckSide, gallery: [IMAGES.measuring, IMAGES.welding, IMAGES.grinding] },
+  'boksy-na-narzedzia': { image: IMAGES.toolWall, heroImage: IMAGES.toolWall, gallery: [IMAGES.toolBox, IMAGES.toolRack, IMAGES.metalCutting] },
+  'mocowania-sprzetu': { image: IMAGES.hoseCompartment, heroImage: IMAGES.hoseCompartment, gallery: [IMAGES.firefighterGear, IMAGES.hoseCompartment, IMAGES.welding] },
+  'zabudowy-pickup': { image: IMAGES.hiluxWhite, heroImage: IMAGES.hiluxBlack, gallery: [IMAGES.hiluxWhite, IMAGES.hiluxBlack, IMAGES.hiluxSilver, IMAGES.pickupForest] },
+  'skrzynie-dachowe': { image: IMAGES.pickupForest, heroImage: IMAGES.ladderTruck, gallery: [IMAGES.pickupForest, IMAGES.ladderTruck] },
+  'oswietlenie-led': { image: IMAGES.fireTruckNight, heroImage: IMAGES.fireTruckNight, gallery: [IMAGES.fireTruckNight] },
+}
+
+const projectImages: Record<string, { thumbnail: string; images: string[] }> = {
+  'man-tgm-osp-wieliczka': { thumbnail: IMAGES.fireTruckForest, images: [IMAGES.fireTruckForest, IMAGES.hoseCompartment, IMAGES.fireTruckGarage, IMAGES.weldingSparks] },
+  'polki-scania-psp-krakow': { thumbnail: IMAGES.firefighterStation, images: [IMAGES.firefighterStation, IMAGES.fireTruckRed, IMAGES.firefighterGear, IMAGES.toolWall] },
+  'toyota-hilux-gopr': { thumbnail: IMAGES.hiluxWhite, images: [IMAGES.hiluxWhite, IMAGES.pickupForest, IMAGES.hiluxSilver] },
+}
 
 const prisma = new PrismaClient()
 
@@ -309,7 +339,15 @@ async function main() {
   ]
 
   const vehicleBrands: Record<string, any> = {}
-  for (const brand of vehicleBrandsData) {
+  let pickupIndex = 0
+  for (const rawBrand of vehicleBrandsData) {
+    const media =
+      brandImages[rawBrand.slug] ??
+      (() => {
+        const img = pickupImages[pickupIndex++ % pickupImages.length]
+        return { heroImage: img, gallery: [img] }
+      })()
+    const brand = { ...rawBrand, image: media.heroImage, heroImage: media.heroImage, gallery: JSON.stringify(media.gallery) }
     const created = await prisma.vehicleBrand.upsert({
       where: { slug: brand.slug },
       update: brand,
@@ -599,7 +637,11 @@ async function main() {
 
   const categories: Record<string, any> = {}
   for (const cat of categoriesData) {
-    const { vehicleSlugs, ...categoryData } = cat
+    const { vehicleSlugs, ...rawCategory } = cat
+    const media = categoryImages[rawCategory.slug]
+    const categoryData = media
+      ? { ...rawCategory, image: media.image, heroImage: media.heroImage, gallery: JSON.stringify(media.gallery) }
+      : rawCategory
     const created = await prisma.category.upsert({
       where: { slug: categoryData.slug },
       update: categoryData,
@@ -684,7 +726,9 @@ async function main() {
     },
   ]
 
-  for (const project of projectsData) {
+  for (const rawProject of projectsData) {
+    const media = projectImages[rawProject.slug]
+    const project = media ? { ...rawProject, thumbnail: media.thumbnail, images: JSON.stringify(media.images) } : rawProject
     if (project.categoryId) {
       await prisma.project.upsert({
         where: { slug: project.slug },

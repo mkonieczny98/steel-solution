@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, X, Image as ImageIcon, Images, Loader2 } from 'lucide-react'
+import { MediaPicker } from '@/components/admin/media-picker'
 
 interface ImageUploadProps {
   value?: string
@@ -17,6 +18,7 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, label = 'Zdjęcie', placeholder = 'Wklej URL zdjęcia lub prześlij plik' }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [inputValue, setInputValue] = useState(value || '')
+  const [libraryOpen, setLibraryOpen] = useState(false)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -81,12 +83,17 @@ export function ImageUpload({ value, onChange, label = 'Zdjęcie', placeholder =
             )}
           </Button>
         </div>
+        <Button type="button" variant="outline" onClick={() => setLibraryOpen(true)} title="Wybierz z biblioteki zdjęć">
+          <Images className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Biblioteka</span>
+        </Button>
         {inputValue && (
           <Button type="button" variant="outline" onClick={handleClear}>
             <X className="h-4 w-4" />
           </Button>
         )}
       </div>
+      <MediaPicker open={libraryOpen} onOpenChange={setLibraryOpen} onSelect={([url]) => url && handleUrlChange(url)} />
       
       {inputValue && (
         <div className="mt-2 relative aspect-video w-full max-w-md overflow-hidden rounded-lg border bg-muted">
@@ -114,6 +121,12 @@ interface GalleryUploadProps {
 export function GalleryUpload({ value = [], onChange, label = 'Galeria', maxImages = 20 }: GalleryUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [newUrl, setNewUrl] = useState('')
+  const [libraryOpen, setLibraryOpen] = useState(false)
+
+  const handleAddFromLibrary = (urls: string[]) => {
+    const fresh = urls.filter((url) => !value.includes(url))
+    onChange([...value, ...fresh].slice(0, maxImages))
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -200,7 +213,18 @@ export function GalleryUpload({ value = [], onChange, label = 'Galeria', maxImag
             )}
           </Button>
         </div>
+        <Button type="button" variant="outline" onClick={() => setLibraryOpen(true)} disabled={value.length >= maxImages}>
+          <Images className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Z biblioteki</span>
+        </Button>
       </div>
+      <MediaPicker
+        open={libraryOpen}
+        onOpenChange={setLibraryOpen}
+        onSelect={handleAddFromLibrary}
+        multiple
+        max={Math.max(0, maxImages - value.length)}
+      />
 
       {/* Gallery grid */}
       {value.length > 0 && (

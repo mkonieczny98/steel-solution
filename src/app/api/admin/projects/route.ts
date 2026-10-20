@@ -1,3 +1,5 @@
+import { revalidateTag } from 'next/cache'
+import { CONTENT_TAG } from '@/lib/data'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -45,10 +47,12 @@ export async function POST(request: NextRequest) {
         title: body.title,
         slug: body.slug,
         description: body.description,
+        content: typeof body.content === 'string' ? body.content.slice(0, 15000) : undefined,
+        year: typeof body.year === 'string' ? body.year.slice(0, 4) : undefined,
         categoryId: body.categoryId,
         vehicleBrand: body.vehicleBrand || null,
         vehicleModel: body.vehicleModel || null,
-        images: body.images || [],
+        images: JSON.stringify(Array.isArray(body.images) ? body.images.filter((image: unknown) => typeof image === 'string').slice(0, 40) : []),
         thumbnail: body.thumbnail || null,
         metaTitle: body.metaTitle || null,
         metaDescription: body.metaDescription || null,
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
         authorId: session.user.id,
       },
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json(project, { status: 201 })
   } catch (error) {

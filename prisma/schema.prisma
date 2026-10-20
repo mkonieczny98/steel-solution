@@ -29,6 +29,7 @@ model Category {
   image              String?
   heroImage          String?
   gallery            String    @default("[]")
+  blocks             String?  // układ strony z kreatora (JSON z sekcjami); puste = układ domyślny
   icon               String?
   color              String    @default("blue")
   features        String    @default("[]")
@@ -55,6 +56,7 @@ model VehicleBrand {
   image              String?
   heroImage          String?
   gallery            String   @default("[]")
+  blocks             String?  // układ strony z kreatora (JSON z sekcjami); puste = układ domyślny
   logo            String?
   type            String   @default("truck")
   models          String   @default("[]")
@@ -107,14 +109,21 @@ model Project {
   @@index([authorId])
 }
 
+// Strony budowane z bloków w panelu (/admin/strony). content = JSON z listą bloków.
 model Page {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-  content   String?
-  published Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  content     String?
+  draft       String?
+  revisions   PageRevision[]
+  published   Boolean  @default(false)
+  showInMenu  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  system      Boolean  @default(false) // strona główna i „O nas” – nie można ich usunąć ani zmienić adresu
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Media {
@@ -137,12 +146,65 @@ model Setting {
 }
 
 model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String
-  message   String
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  organization String?
+  vehicle      String?
+  category     String?
+  subject      String   @default("")
+  message      String
   read      Boolean  @default(false)
+  requestId String? @unique
+  projectSlug String?
+  status String @default("new")
+  notes String @default("")
+  followUpAt DateTime?
+  notificationStatus String @default("pending")
+  notificationAttempts Int @default(0)
+  notificationUpdatedAt DateTime?
+  attachments ContactAttachment[]
   createdAt DateTime @default(now())
+}
+
+model ContactAttachment {
+  id String @id @default(cuid())
+  messageId String
+  message ContactMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  name String
+  mimeType String
+  size Int
+  data Bytes
+  @@index([messageId])
+}
+
+model RequestLimit {
+  key String @id
+  count Int
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
+model ConversionCount {
+  key String @id
+  day String
+  event String
+  page String
+  count Int @default(1)
+  @@index([day])
+}
+
+model PageRevision {
+  id String @id @default(cuid())
+  pageId String
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  snapshot String
+  createdAt DateTime @default(now())
+  @@index([pageId, createdAt])
+}
+
+model PageRedirect {
+  from String @id
+  to String
 }

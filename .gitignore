@@ -8,6 +8,8 @@ coverage
 
 # Next.js
 .next/
+# Katalogi buildów ze scripts/deploy-steel.sh
+.next-*/
 out/
 build
 

@@ -6,7 +6,7 @@ import { ProjectForm } from '../project-form'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 async function getProject(id: string) {
@@ -22,8 +22,9 @@ async function getCategories() {
 }
 
 export default async function EditProjectPage({ params }: Props) {
+  const { id } = await params
   const [project, categories] = await Promise.all([
-    getProject(params.id),
+    getProject(id),
     getCategories(),
   ])
 
@@ -37,6 +38,8 @@ export default async function EditProjectPage({ params }: Props) {
     title: project.title,
     slug: project.slug,
     description: project.description,
+    content: project.content,
+    year: project.year,
     categoryId: project.categoryId,
     vehicleBrand: project.vehicleBrand,
     vehicleModel: project.vehicleModel,

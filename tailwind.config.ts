@@ -10,13 +10,18 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
+      padding: { DEFAULT: '1rem', sm: '1.5rem', lg: '2rem' },
       screens: {
         '2xl': '1400px',
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
+      },
       colors: {
+        ink: 'hsl(var(--ink))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

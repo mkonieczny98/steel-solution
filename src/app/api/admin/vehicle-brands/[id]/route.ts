@@ -1,3 +1,5 @@
+import { revalidateTag } from 'next/cache'
+import { CONTENT_TAG } from '@/lib/data'
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -5,11 +7,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const vehicleBrand = await prisma.vehicleBrand.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         categories: {
           include: { category: true }
@@ -36,8 +39,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -51,7 +55,7 @@ export async function PUT(
     const existingBrand = await prisma.vehicleBrand.findFirst({
       where: {
         slug: data.slug,
-        NOT: { id: params.id },
+        NOT: { id },
       },
     })
 
@@ -64,11 +68,11 @@ export async function PUT(
 
     // Delete existing relations
     await prisma.categoryVehicleBrand.deleteMany({
-      where: { vehicleBrandId: params.id }
+      where: { vehicleBrandId: id }
     })
 
     const vehicleBrand = await prisma.vehicleBrand.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: brandData.name,
         slug: brandData.slug,
@@ -97,6 +101,7 @@ export async function PUT(
         }
       }
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json(vehicleBrand)
   } catch (error) {
@@ -110,8 +115,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -119,8 +125,9 @@ export async function DELETE(
     }
 
     await prisma.vehicleBrand.delete({
-      where: { id: params.id },
+      where: { id },
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json({ message: 'Marka usunięta' })
   } catch (error) {

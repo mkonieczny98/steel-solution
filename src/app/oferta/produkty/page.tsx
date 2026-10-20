@@ -1,291 +1,135 @@
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { ArrowRight, Check } from 'lucide-react'
 import { PublicHeader } from '@/components/public/header'
+import { PublicFooter } from '@/components/public/footer'
+import { SmartImage } from '@/components/public/smart-image'
+import { CtaBand, PageHero, buttonClass } from '@/components/public/blocks'
+import { getCategories, parseJson } from '@/lib/data'
+import { IMAGES, fallbackImage } from '@/lib/images'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
-import { PublicFooter } from '@/components/public/footer'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { 
-  Package, 
-  ChevronRight, 
-  ArrowLeft,
-  LayoutGrid,
-  Box,
-  Shield,
-  Wrench,
-  Truck
-} from 'lucide-react'
 
 export const metadata = {
-  title: 'Produkty dla służb | Półki, Boksy, Podesty, Mocowania',
-  description: 'Pełna oferta produktów dla straży pożarnej i służb ratowniczych. Półki do kabin, boksy narzędziowe, podesty, mocowania sprzętu, skrzynie dachowe, zabudowy pickup.',
-}
-
-const productCategories = [
-  {
-    name: 'Półki do kabin',
-    slug: 'polki-do-kabin',
-    icon: LayoutGrid,
-    color: 'bg-blue-500',
-    description: 'Półki górne, boczne i pod siedzenia do kabin pojazdów ciężarowych',
-    longDescription: 'Oferujemy szeroki wybór półek dedykowanych do kabin pojazdów MAN, Scania, Volvo, Mercedes i innych marek. Nasze półki są wykonane z wysokiej jakości materiałów i zapewniają optymalne wykorzystanie przestrzeni kabiny.',
-    features: [
-      'Półki górne na całą szerokość kabiny',
-      'Półki boczne na dokumenty i drobny sprzęt',
-      'Półki pod siedzenia pasażera',
-      'Organizery i przegródki',
-      'Montaż bez ingerencji w strukturę kabiny',
-    ],
-    brands: ['MAN', 'Scania', 'Volvo', 'Mercedes', 'Renault', 'Iveco', 'DAF'],
-  },
-  {
-    name: 'Podesty i stopnie',
-    slug: 'podesty-i-stopnie',
-    icon: Box,
-    color: 'bg-green-500',
-    description: 'Podesty robocze, stopnie wejściowe, platformy',
-    longDescription: 'Projektujemy i wykonujemy podesty robocze oraz stopnie wejściowe ułatwiające pracę przy pojazdach. Nasze produkty są wykonane z aluminium, co zapewnia lekkość i trwałość.',
-    features: [
-      'Podesty robocze składane i stałe',
-      'Stopnie wejściowe antypoślizgowe',
-      'Platformy do pracy na wysokości',
-      'Drabinki boczne i tylne',
-      'Konstrukcje ze stopu aluminium',
-    ],
-    brands: ['MAN', 'Scania', 'Volvo', 'Mercedes', 'Renault'],
-  },
-  {
-    name: 'Boksy na narzędzia',
-    slug: 'boksy-na-narzedzia',
-    icon: Package,
-    color: 'bg-orange-500',
-    description: 'Skrzynki narzędziowe, boksy aluminiowe, schowki',
-    longDescription: 'Produkujemy boksy i skrzynie narzędziowe o różnych wymiarach i konfiguracjach. Nasze produkty są wykonane z aluminium lub stali nierdzewnej, z zamkami i uszczelnieniami.',
-    features: [
-      'Boksy aluminiowe różnych rozmiarów',
-      'Skrzynie stalowe malowane proszkowo',
-      'Zamki kluczowe i na kłódkę',
-      'Uszczelnienia gumowe',
-      'Mocowanie na podłogę lub ścianę',
-    ],
-    brands: ['Uniwersalne', 'Na wymiar'],
-  },
-  {
-    name: 'Mocowania sprzętu',
-    slug: 'mocowania-sprzetu',
-    icon: Shield,
-    color: 'bg-red-500',
-    description: 'Uchwyty, mocowania na gaśnice, narzędzia ratownicze',
-    longDescription: 'Oferujemy profesjonalne mocowania na sprzęt ratowniczy i gaśniczy. Nasze uchwyty są certyfikowane i spełniają normy bezpieczeństwa dla pojazdów służb ratunkowych.',
-    features: [
-      'Uchwyty na gaśnice (różne rozmiary)',
-      'Mocowania narzędzi hydraulicznych',
-      'Uchwyty na latarki i kagańce',
-      'Mocowania na toporki i łomy',
-      'Systemy mocowań modułowych',
-    ],
-    brands: ['Uniwersalne', 'Dedykowane'],
-  },
-  {
-    name: 'Skrzynie dachowe',
-    slug: 'skrzynie-dachowe',
-    icon: Box,
-    color: 'bg-purple-500',
-    description: 'Bagażniki dachowe, skrzynie na sprzęt, belki sygnalizacyjne',
-    longDescription: 'Projektujemy skrzynie dachowe i bagażniki na dachy pojazdów. Nasze produkty są aerodynamiczne, wodoszczelne i przystosowane do montażu belek sygnalizacyjnych.',
-    features: [
-      'Skrzynie dachowe aluminiowe',
-      'Bagażniki na drabiny',
-      'Platformy pod belki świetlne',
-      'Mocowania na sprzęt ratowniczy',
-      'Konstrukcje aerodynamiczne',
-    ],
-    brands: ['MAN', 'Scania', 'Volvo', 'Mercedes'],
-  },
-  {
-    name: 'Zabudowy pickup',
-    slug: 'zabudowy-pickup',
-    icon: Truck,
-    color: 'bg-amber-500',
-    description: 'Kompleksowe zabudowy skrzyni ładunkowej pickupów',
-    longDescription: 'Specjalizujemy się w zabudowach pickupów dla służb ratowniczych, leśnictwa i innych formacji. Oferujemy hardtopy, zabudowy serwisowe, rolety i kompleksowe wyposażenie.',
-    features: [
-      'Hardtopy aluminiowe i kompozytowe',
-      'Zabudowy serwisowe ze szufladami',
-      'Rolety aluminiowe',
-      'Pokrywy trójdzielne',
-      'Systemy organizacji ładunku',
-    ],
-    brands: ['Toyota Hilux', 'Nissan Navara', 'Ford Ranger', 'VW Amarok', 'Mitsubishi L200'],
-  },
-]
-
-async function getCategoryStats() {
-  const categories = await prisma.category.findMany({
-    include: {
-      _count: {
-        select: { projects: { where: { published: true } } }
-      }
-    }
-  })
-  return categories
+  title: 'Produkty dla służb – półki, boksy, podesty, mocowania',
+  description:
+    'Produkty dla straży pożarnej i służb ratowniczych: półki do kabin, boksy narzędziowe, podesty, mocowania sprzętu, skrzynie dachowe i zabudowy pickupów.',
+  alternates: { canonical: '/oferta/produkty' },
 }
 
 export default async function ProduktyPage() {
-  const dbCategories = await getCategoryStats()
+  const categories = await getCategories()
 
   return (
     <>
       <PublicHeader />
 
-      <main className="min-h-screen">
-        {/* Breadcrumbs */}
-        <div className="border-b bg-muted/30">
-          <div className="container py-3">
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground">Strona główna</Link>
-              <ChevronRight className="h-4 w-4" />
-              <Link href="/oferta" className="hover:text-foreground">Oferta</Link>
-              <ChevronRight className="h-4 w-4" />
-              <span className="text-foreground">Produkty</span>
-            </nav>
+      <main id="main">
+        <PageHero
+          eyebrow="Produkty"
+          title="Nasze produkty"
+          description="Wybierz kategorię, aby zobaczyć szczegóły, specyfikację i kompatybilne pojazdy. Każdy produkt wykonujemy na wymiar."
+          image={IMAGES.weldingSparks}
+          breadcrumbs={[{ name: 'Oferta', href: '/oferta' }, { name: 'Produkty' }]}
+        />
+
+        {/* Szybka nawigacja po kategoriach */}
+        <nav aria-label="Kategorie produktów" className="sticky top-16 z-30 border-b bg-background/95 backdrop-blur lg:top-20">
+          <div className="container flex gap-2 overflow-x-auto py-3 [scrollbar-width:none]">
+            {categories.map((category) => (
+              <a
+                key={category.id}
+                href={`#${category.slug}`}
+                className="shrink-0 border px-3 py-1.5 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                {category.name}
+              </a>
+            ))}
           </div>
-        </div>
+        </nav>
 
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-slate-900 to-slate-800 py-16">
-          <div className="container">
-            <Button variant="ghost" size="sm" asChild className="mb-6 text-slate-400 hover:text-white">
-              <Link href="/oferta">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Powrót do oferty
-              </Link>
-            </Button>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
-                <Package className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white sm:text-4xl">
-                  Nasze produkty
-                </h1>
-                <p className="mt-1 text-lg text-slate-400">
-                  Wybierz kategorię produktu, aby zobaczyć pełną ofertę
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Kategorie */}
-        <section className="py-12 lg:py-16">
-          <div className="container">
-            <div className="grid gap-8">
-              {productCategories.map((category) => {
-                const Icon = category.icon
-                const dbCat = dbCategories.find(c => c.slug === category.slug)
-                const projectCount = dbCat?._count?.projects || 0
-                
-                return (
-                  <Card key={category.slug} className="overflow-hidden transition-all hover:shadow-xl">
-                    <div className="grid lg:grid-cols-3">
-                      {/* Lewa strona - informacje */}
-                      <div className="p-6 lg:col-span-2 lg:p-8">
-                        <div className="flex items-start gap-4">
-                          <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${category.color} text-white`}>
-                            <Icon className="h-7 w-7" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <h2 className="text-2xl font-bold">{category.name}</h2>
-                              {projectCount > 0 && (
-                                <Badge variant="secondary">
-                                  {projectCount} realizacji
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="mt-2 text-muted-foreground">
-                              {category.longDescription}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                          <div>
-                            <h3 className="mb-2 text-sm font-semibold uppercase text-muted-foreground">
-                              Co oferujemy
-                            </h3>
-                            <ul className="space-y-1">
-                              {category.features.slice(0, 4).map((feature) => (
-                                <li key={feature} className="flex items-center gap-2 text-sm">
-                                  <div className={`h-1.5 w-1.5 rounded-full ${category.color}`} />
-                                  {feature}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h3 className="mb-2 text-sm font-semibold uppercase text-muted-foreground">
-                              Dla pojazdów
-                            </h3>
-                            <div className="flex flex-wrap gap-1">
-                              {category.brands.map((brand) => (
-                                <Badge key={brand} variant="outline" className="text-xs">
-                                  {brand}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Prawa strona - CTA */}
-                      <div className="flex flex-col justify-center border-t bg-muted/30 p-6 lg:border-l lg:border-t-0">
-                        <Link
-                          href={`/oferta/produkty/${category.slug}`}
-                          className="group"
-                        >
-                          <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gradient-to-br from-slate-100 to-slate-200">
-                            <div className="flex h-full items-center justify-center">
-                              <Icon className={`h-16 w-16 transition-transform group-hover:scale-110 ${category.color.replace('bg-', 'text-').replace('-500', '-400')}`} />
-                            </div>
-                          </div>
-                          <Button className="w-full group-hover:bg-primary/90">
-                            Zobacz produkty
-                            <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                          </Button>
-                        </Link>
-                      </div>
+        <section className="py-12 lg:py-20">
+          <div className="container space-y-6 lg:space-y-10">
+            {categories.map((category, i) => {
+              const features = parseJson<string[]>(category.features, [])
+              const brands = category.vehicleBrands.map((vb) => vb.vehicleBrand).filter((b) => b.published)
+              const projectCount = category._count.projects
+              return (
+                <article
+                  key={category.id}
+                  id={category.slug}
+                  className="grid scroll-mt-40 overflow-hidden border bg-card lg:grid-cols-2"
+                >
+                  <Link
+                    href={`/oferta/produkty/${category.slug}`}
+                    className={cn('group relative block min-h-[260px] bg-ink lg:min-h-[420px]', i % 2 === 1 && 'lg:order-2')}
+                  >
+                    <SmartImage
+                      src={category.image || category.heroImage || fallbackImage('product')}
+                      alt={category.name}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <span className="absolute left-5 top-5 bg-ink px-3 py-1.5 font-display text-lg font-bold text-primary">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </Link>
+                  <div className="flex flex-col p-6 sm:p-8 lg:p-12">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h2 className="heading-display text-4xl">{category.name}</h2>
+                      {projectCount > 0 && (
+                        <span className="bg-muted px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          {projectCount} {projectCount === 1 ? 'realizacja' : projectCount < 5 ? 'realizacje' : 'realizacji'}
+                        </span>
+                      )}
                     </div>
-                  </Card>
-                )
-              })}
-            </div>
+                    <p className="mt-4 leading-relaxed text-muted-foreground">
+                      {category.longDescription || category.description}
+                    </p>
+                    {features.length > 0 && (
+                      <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
+                        {features.slice(0, 6).map((feature) => (
+                          <li key={feature} className="flex gap-2.5 text-sm">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {brands.length > 0 && (
+                      <div className="mt-6">
+                        <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Dla pojazdów</p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {brands.map((brand) => (
+                            <Link
+                              key={brand.slug}
+                              href={`/oferta/pojazdy/${brand.slug}`}
+                              className="border px-2 py-1 text-xs font-medium transition-colors hover:border-primary hover:text-primary"
+                            >
+                              {brand.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-8 flex flex-wrap gap-3 lg:mt-auto lg:pt-8">
+                      <Link href={`/oferta/produkty/${category.slug}`} className={buttonClass('dark')}>
+                        Szczegóły
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                      <Link href={`/kontakt?kategoria=${category.slug}`} className={buttonClass('outline-dark')}>
+                        Zapytaj o wycenę
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="bg-muted/30 py-12">
-          <div className="container">
-            <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-center lg:p-12">
-              <Wrench className="mx-auto mb-4 h-12 w-12 text-primary" />
-              <h2 className="text-2xl font-bold text-white">
-                Potrzebujesz produktu na wymiar?
-              </h2>
-              <p className="mt-2 text-slate-400">
-                Wykonujemy również produkty według indywidualnych specyfikacji klienta.
-              </p>
-              <Button asChild size="lg" className="mt-6">
-                <Link href="/kontakt">
-                  Zapytaj o wycenę
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
+        <CtaBand title="Potrzebujesz czegoś nietypowego?" description="Wykonujemy też produkty według indywidualnej specyfikacji jednostki." />
       </main>
 
       <PublicFooter />

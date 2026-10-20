@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { AdminHeader } from '@/components/admin/header'
-import { Plus, Package, Edit, Eye, EyeOff } from 'lucide-react'
+import { Plus, Package, Edit, Eye, EyeOff, LayoutTemplate } from 'lucide-react'
 
 async function getCategories() {
   return prisma.category.findMany({
@@ -132,6 +132,12 @@ export default async function CategoriesPage() {
                       </TableCell>
                       <TableCell>{category.sortOrder}</TableCell>
                       <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild className="mr-1">
+                          <Link href={`/admin/kategorie/${category.id}/uklad`}>
+                            <LayoutTemplate className="mr-1.5 h-4 w-4" />
+                            Układ strony
+                          </Link>
+                        </Button>
                         <Button variant="ghost" size="sm" asChild>
                           <Link href={`/admin/kategorie/${category.id}`}>
                             <Edit className="h-4 w-4" />

@@ -86,7 +86,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@zabudowy.pl"
+                  placeholder="twoj@email.pl"
                   {...register('email')}
                   disabled={isLoading}
                 />
@@ -126,11 +126,6 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 rounded-lg bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-              <p className="font-medium">Dane testowe:</p>
-              <p>Email: admin@zabudowy.pl</p>
-              <p>Hasło: admin123</p>
-            </div>
           </CardContent>
         </Card>
       </div>

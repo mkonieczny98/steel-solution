@@ -1,21 +1,24 @@
+import { revalidateTag } from 'next/cache'
+import { CONTENT_TAG } from '@/lib/data'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 // GET /api/admin/projects/[id]
 export async function GET(request: NextRequest, { params }: Props) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const project = await prisma.project.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { category: true },
   })
 
@@ -28,6 +31,7 @@ export async function GET(request: NextRequest, { params }: Props) {
 
 // PUT /api/admin/projects/[id]
 export async function PUT(request: NextRequest, { params }: Props) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -40,7 +44,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
     const existing = await prisma.project.findFirst({
       where: {
         slug: body.slug,
-        NOT: { id: params.id },
+        NOT: { id },
       },
     })
 
@@ -52,15 +56,17 @@ export async function PUT(request: NextRequest, { params }: Props) {
     }
 
     const project = await prisma.project.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: body.title,
         slug: body.slug,
         description: body.description,
+        content: typeof body.content === 'string' ? body.content.slice(0, 15000) : undefined,
+        year: typeof body.year === 'string' ? body.year.slice(0, 4) : undefined,
         categoryId: body.categoryId,
         vehicleBrand: body.vehicleBrand || null,
         vehicleModel: body.vehicleModel || null,
-        images: body.images || [],
+        images: JSON.stringify(Array.isArray(body.images) ? body.images.filter((image: unknown) => typeof image === 'string').slice(0, 40) : []),
         thumbnail: body.thumbnail || null,
         metaTitle: body.metaTitle || null,
         metaDescription: body.metaDescription || null,
@@ -68,6 +74,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
         published: body.published || false,
       },
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json(project)
   } catch (error) {
@@ -81,6 +88,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
 // DELETE /api/admin/projects/[id]
 export async function DELETE(request: NextRequest, { params }: Props) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -88,8 +96,9 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 
   try {
     await prisma.project.delete({
-      where: { id: params.id },
+      where: { id },
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json({ success: true })
   } catch (error) {

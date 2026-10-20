@@ -16,11 +16,12 @@ import {
   MessageSquare,
   Users,
   ChevronDown,
-  Flame,
   Car,
   Package,
+  Building2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { LogoMark } from '@/components/public/logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -39,10 +40,8 @@ const navigation = [
   { name: 'Marki pojazdów', href: '/admin/pojazdy', icon: Car },
   { name: 'Kategorie produktów', href: '/admin/kategorie', icon: Package },
   { name: 'Strony', href: '/admin/strony', icon: FileText },
-  { name: 'Media', href: '/admin/media', icon: FileImage },
+  { name: 'Dane firmy', href: '/admin/dane-firmy', icon: Building2 },
   { name: 'Wiadomości', href: '/admin/wiadomosci', icon: MessageSquare },
-  { name: 'Użytkownicy', href: '/admin/uzytkownicy', icon: Users },
-  { name: 'Ustawienia', href: '/admin/ustawienia', icon: Settings },
 ]
 
 export function AdminSidebar() {
@@ -54,11 +53,9 @@ export function AdminSidebar() {
     <>
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-          <Flame className="h-5 w-5 text-white" />
-        </div>
+        <LogoMark className="h-9 w-9" />
         <div className="flex flex-col">
-          <span className="text-sm font-bold">Zabudowy</span>
+          <span className="text-sm font-bold">Steel Solution</span>
           <span className="text-xs text-muted-foreground">Panel Admina</span>
         </div>
       </div>
@@ -116,12 +113,6 @@ export function AdminSidebar() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/admin/ustawienia">
-                <Settings className="mr-2 h-4 w-4" />
-                Ustawienia
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/" target="_blank">
                 <FileText className="mr-2 h-4 w-4" />

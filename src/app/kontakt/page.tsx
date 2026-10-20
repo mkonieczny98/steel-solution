@@ -1,277 +1,107 @@
-'use client'
-
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Loader2, Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react'
+import type { Metadata } from 'next'
+import { Clock, Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react'
 import { PublicHeader } from '@/components/public/header'
 import { PublicFooter } from '@/components/public/footer'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
-import { useToast } from '@/components/ui/use-toast'
+import { getCategories, getVehicleBrands, getProject } from '@/lib/data'
+import { getSiteInfo } from '@/lib/content'
+import { QuoteForm } from './quote-form'
 
-const contactSchema = z.object({
-  name: z.string().min(2, 'Imię i nazwisko jest wymagane'),
-  email: z.string().email('Nieprawidłowy adres email'),
-  phone: z.string().optional(),
-  subject: z.string().optional(),
-  message: z.string().min(10, 'Wiadomość musi mieć co najmniej 10 znaków'),
-})
+export const dynamic = 'force-dynamic'
 
-type ContactForm = z.infer<typeof contactSchema>
+export const metadata: Metadata = {
+  title: 'Kontakt i bezpłatna wycena',
+  description: 'Zapytaj o wycenę zabudowy wozu strażackiego, półek do kabin lub zabudowy pickupa. Zadzwoń lub wypełnij formularz.',
+  alternates: { canonical: '/kontakt' },
+}
 
-export default function KontaktPage() {
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+interface Props {
+  searchParams: Promise<{ kategoria?: string; pojazd?: string; realizacja?: string }>
+}
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ContactForm>({
-    resolver: zodResolver(contactSchema),
-  })
+export default async function KontaktPage({ searchParams }: Props) {
+  const { kategoria, pojazd, realizacja } = await searchParams
+  const [categories, brands, site] = await Promise.all([getCategories(), getVehicleBrands(), getSiteInfo()])
+  const defaultCategory = categories.find((c) => c.slug === kategoria)?.name
+  const project = realizacja ? await getProject(realizacja) : null
+  const defaultVehicle = pojazd?.slice(0, 100)
 
-  const onSubmit = async (data: ContactForm) => {
-    setIsLoading(true)
-
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-
-      if (!res.ok) throw new Error()
-
-      setIsSuccess(true)
-      reset()
-      toast({
-        title: 'Wiadomość wysłana!',
-        description: 'Skontaktujemy się z Tobą wkrótce.',
-      })
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Błąd',
-        description: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.',
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: 'Telefon',
-      value: '+48 690 418 119',
-      href: 'tel:+48123456789',
-    },
-    {
-      icon: Mail,
-      title: 'Email',
-      value: 'kontakt@steelsolution.pl',
-      href: 'mailto:kontakt@steelsolution.pl',
-    },
-    {
-      icon: MapPin,
-      title: 'Adres',
-      value: 'Leśna 12, 64-020 Betkowo',
-      href: 'https://maps.google.com',
-    },
+  const contact = [
+    { icon: Phone, label: 'Telefon', value: site.phone, href: site.phoneHref },
+    { icon: Mail, label: 'E-mail', value: site.email, href: `mailto:${site.email}` },
+    { icon: MapPin, label: 'Adres', value: site.fullAddress, href: site.mapsUrl, external: true },
   ]
 
   return (
     <>
       <PublicHeader />
 
-      <main className="min-h-screen">
-        {/* Header */}
-        <section className="border-b bg-muted/30 py-12">
+      <main id="main">
+        <section className="border-b bg-ink py-8 text-white sm:py-12">
           <div className="container">
-            <h1 className="text-3xl font-bold md:text-4xl">Kontakt</h1>
-            <p className="mt-2 text-muted-foreground">
-              Skontaktuj się z nami, aby uzyskać wycenę
-            </p>
+            <p className="eyebrow mb-3">Porozmawiajmy o Twoim pojeździe</p>
+            <h1 className="heading-display text-4xl sm:text-6xl">Bezpłatna wycena</h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">Napisz, czego potrzebujesz. Zdjęcia i wymiary pomogą nam dobrać rozwiązanie — szczegóły ustalimy razem.</p>
           </div>
         </section>
 
-        {/* Contact section */}
-        <section className="py-12">
-          <div className="container">
-            <div className="grid gap-12 lg:grid-cols-3">
-              {/* Contact info */}
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-xl font-semibold">Dane kontaktowe</h2>
-                  <p className="mt-2 text-muted-foreground">
-                    Jesteśmy do Twojej dyspozycji. Zadzwoń, napisz lub odwiedź nas.
-                  </p>
-                </div>
+        <section className="py-8 lg:py-12">
+          <div className="container grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
 
-                {contactInfo.map((item) => (
-                  <a
-                    key={item.title}
-                    href={item.href}
-                    className="flex items-start gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                      <item.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{item.title}</p>
-                      <p className="font-medium">{item.value}</p>
-                    </div>
-                  </a>
-                ))}
 
-                <Card>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium">Godziny otwarcia</h3>
-                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                      <p>Poniedziałek - Piątek: 8:00 - 17:00</p>
-                      <p>Sobota: 9:00 - 14:00</p>
-                      <p>Niedziela: Zamknięte</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Contact form */}
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardContent className="p-6">
-                    {isSuccess ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                        <h3 className="mt-4 text-xl font-semibold">
-                          Wiadomość wysłana!
-                        </h3>
-                        <p className="mt-2 text-muted-foreground">
-                          Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.
-                        </p>
-                        <Button
-                          variant="outline"
-                          className="mt-4"
-                          onClick={() => setIsSuccess(false)}
-                        >
-                          Wyślij kolejną wiadomość
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-semibold">
-                          Wyślij wiadomość
-                        </h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Wypełnij formularz, a skontaktujemy się z Tobą jak najszybciej
-                        </p>
-
-                        <form
-                          onSubmit={handleSubmit(onSubmit)}
-                          className="mt-6 space-y-4"
-                        >
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="name">Imię i nazwisko *</Label>
-                              <Input
-                                id="name"
-                                placeholder="Jan Kowalski"
-                                {...register('name')}
-                              />
-                              {errors.name && (
-                                <p className="text-sm text-destructive">
-                                  {errors.name.message}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="email">Email *</Label>
-                              <Input
-                                id="email"
-                                type="email"
-                                placeholder="jan@example.com"
-                                {...register('email')}
-                              />
-                              {errors.email && (
-                                <p className="text-sm text-destructive">
-                                  {errors.email.message}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="phone">Telefon</Label>
-                              <Input
-                                id="phone"
-                                type="tel"
-                                placeholder="+48 123 456 789"
-                                {...register('phone')}
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="subject">Temat</Label>
-                              <Input
-                                id="subject"
-                                placeholder="Zapytanie o wycenę"
-                                {...register('subject')}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="message">Wiadomość *</Label>
-                            <Textarea
-                              id="message"
-                              rows={6}
-                              placeholder="Opisz swoje potrzeby..."
-                              {...register('message')}
-                            />
-                            {errors.message && (
-                              <p className="text-sm text-destructive">
-                                {errors.message.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <Button
-                            type="submit"
-                            size="lg"
-                            className="w-full sm:w-auto"
-                            disabled={isLoading}
-                          >
-                            {isLoading ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Wysyłanie...
-                              </>
-                            ) : (
-                              <>
-                                <Send className="mr-2 h-4 w-4" />
-                                Wyślij wiadomość
-                              </>
-                            )}
-                          </Button>
-                        </form>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+            <div id="formularz" className="min-w-0 scroll-mt-24 border bg-card p-5 sm:p-8">
+              <h2 className="heading-display text-3xl">Opowiedz o swoim projekcie</h2>
+              <p className="mb-8 mt-2 text-muted-foreground">Na początek wystarczą dane kontaktowe i krótki opis.</p>
+              <QuoteForm
+                categories={categories.map((c) => c.name)}
+                brands={brands.map((b) => b.name)}
+                defaultCategory={defaultCategory}
+                defaultVehicle={defaultVehicle}
+                project={project ? { slug: project.slug, title: project.title } : undefined}
+                contact={{ name: site.name, phone: site.phone, phoneHref: site.phoneHref }}
+              />
             </div>
+            <aside className="space-y-3 lg:order-none">
+              {contact.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className="group flex items-center gap-4 border bg-card p-5 transition-colors hover:border-ink"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center bg-ink">
+                    <item.icon className="h-5 w-5 text-primary" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">{item.label}</span>
+                    <span className="mt-0.5 block truncate font-display text-xl font-semibold">{item.value}</span>
+                  </span>
+                  {item.external && <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />}
+                </a>
+              ))}
+
+              <div className="clip-corner-lg bg-ink p-6 text-white">
+                <p className="flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.2em]">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Godziny pracy
+                </p>
+                <dl className="mt-4 text-sm">
+                  {site.hours.map((h) => (
+                    <div key={h.days} className="flex justify-between border-b border-white/10 py-2.5 last:border-0">
+                      <dt className="text-zinc-400">{h.days}</dt>
+                      <dd className="font-medium">{h.time}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <div className="border bg-card p-6">
+                <h2 className="font-display text-xl font-semibold">Co dalej?</h2>
+                <ol className="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
+                  <li><strong className="text-foreground">01 · Rozmowa.</strong> Sprawdzimy zakres i dopytamy o potrzebne szczegóły.</li>
+                  <li><strong className="text-foreground">02 · Propozycja.</strong> Ustalimy rozwiązanie, cenę i możliwy termin.</li>
+                  <li><strong className="text-foreground">03 · Twoja decyzja.</strong> Wysłanie zapytania nie jest zamówieniem.</li>
+                </ol>
+              </div>
+            </aside>
           </div>
         </section>
       </main>

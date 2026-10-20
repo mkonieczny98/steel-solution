@@ -27,6 +27,8 @@ const projectSchema = z.object({
   title: z.string().min(1, 'Tytuł jest wymagany'),
   slug: z.string().min(1, 'Slug jest wymagany'),
   description: z.string().min(1, 'Opis jest wymagany'),
+  content: z.string().max(15000).optional(),
+  year: z.string().max(4).optional(),
   categoryId: z.string().min(1, 'Wybierz kategorię'),
   vehicleBrand: z.string().optional(),
   vehicleModel: z.string().optional(),
@@ -51,6 +53,8 @@ interface ProjectFormProps {
     title: string
     slug: string
     description: string | null
+    content?: string | null
+    year?: string | null
     categoryId: string | null
     vehicleBrand: string | null
     vehicleModel: string | null
@@ -99,6 +103,8 @@ export function ProjectForm({ categories, initialData }: ProjectFormProps) {
       title: initialData?.title || '',
       slug: initialData?.slug || '',
       description: initialData?.description || '',
+      content: initialData?.content || '',
+      year: initialData?.year || '',
       categoryId: initialData?.categoryId || '',
       vehicleBrand: initialData?.vehicleBrand || '',
       vehicleModel: initialData?.vehicleModel || '',
@@ -219,6 +225,12 @@ export function ProjectForm({ categories, initialData }: ProjectFormProps) {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="content">Opis realizacji: potrzeba, wykonanie, efekt</Label>
+                <Textarea id="content" rows={10} {...register('content')} placeholder={'## Potrzeba jednostki\nOpisz problem, który rozwiązaliście.\n\n## Co wykonaliśmy\nWymień elementy i sposób montażu.\n\n## Efekt\nOpisz rezultat potwierdzony przez klienta.'} />
+                <p className="text-xs text-muted-foreground">Nagłówki zaczynające się od ## tworzą sekcje. Podawaj wyłącznie potwierdzone dane; zdjęcia powinny przedstawiać ten projekt.</p>
+              </div>
+              <div className="space-y-2"><Label htmlFor="year">Rok realizacji</Label><Input id="year" inputMode="numeric" maxLength={4} {...register('year')} /></div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="categoryId">Kategoria *</Label>

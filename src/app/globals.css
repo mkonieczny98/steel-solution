@@ -4,26 +4,27 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 40 12% 98%;
+    --foreground: 220 16% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 220 16% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 0 72% 51%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --popover-foreground: 220 16% 9%;
+    --primary: 356 82% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 10% 93%;
+    --secondary-foreground: 220 16% 12%;
+    --muted: 220 10% 94%;
+    --muted-foreground: 220 7% 38%;
+    --accent: 220 10% 93%;
+    --accent-foreground: 220 16% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 0 72% 51%;
-    --radius: 0.5rem;
+    --border: 220 10% 87%;
+    --input: 220 10% 85%;
+    --ring: 356 82% 47%;
+    --radius: 0.25rem;
+    --ink: 220 14% 7%;
   }
 
   .dark {
@@ -33,7 +34,7 @@
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 0 72% 51%;
+    --primary: 356 82% 47%;
     --primary-foreground: 210 20% 98%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
@@ -45,7 +46,8 @@
     --destructive-foreground: 210 20% 98%;
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 0 72% 51%;
+    --ring: 356 82% 47%;
+    --ink: 220 14% 7%;
   }
 }
 
@@ -53,8 +55,17 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  ::selection {
+    @apply bg-primary text-primary-foreground;
   }
 }
 
@@ -91,3 +102,73 @@
     transform: translateY(0);
   }
 }
+
+@layer components {
+  /* Nagłówki w stylu przemysłowym */
+  .heading-display {
+    @apply font-display font-bold uppercase leading-[0.95] tracking-tight;
+  }
+
+  /* Mała etykieta nad nagłówkiem sekcji */
+  .eyebrow {
+    @apply inline-flex items-center gap-3 font-display text-sm font-semibold uppercase tracking-[0.25em] text-primary;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply h-0.5 w-8 bg-primary;
+  }
+
+  /* Techniczna siatka w tle ciemnych sekcji */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-blueprint-light {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.7) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.7) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Ścięty narożnik – motyw blachy */
+  .clip-corner {
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  }
+  .clip-corner-lg {
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
+  }
+
+  /* Pas ostrzegawczy */
+  .hazard-stripe {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      hsl(var(--primary)) 0 12px,
+      transparent 12px 24px
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keyboard navigation and touch-safe forms. */
+.skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 200; transform: translateY(-200%); background: white; color: #101215; padding: .75rem 1rem; font-weight: 600; }
+.skip-link:focus { transform: translateY(0); }
+:focus-visible { outline: 3px solid #e83946; outline-offset: 4px; }
+#main, #formularz { scroll-margin-top: 6rem; }
+dialog::backdrop { background: rgb(0 0 0 / .65); }
+@media (max-width: 1023px) { body { padding-bottom: env(safe-area-inset-bottom); } }
+
+.bg-ink .eyebrow { color: #ff7a83; }
+.bg-ink .eyebrow::before { background-color: #ff7a83; }

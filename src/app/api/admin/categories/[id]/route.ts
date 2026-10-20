@@ -1,3 +1,5 @@
+import { revalidateTag } from 'next/cache'
+import { CONTENT_TAG } from '@/lib/data'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -5,11 +7,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         vehicleBrands: {
           include: { vehicleBrand: true }
@@ -35,8 +38,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -54,7 +58,7 @@ export async function PUT(
     const existingCategory = await prisma.category.findFirst({
       where: { 
         slug: data.slug,
-        NOT: { id: params.id }
+        NOT: { id }
       },
     })
 
@@ -67,11 +71,11 @@ export async function PUT(
 
     // Delete existing relations
     await prisma.categoryVehicleBrand.deleteMany({
-      where: { categoryId: params.id }
+      where: { categoryId: id }
     })
 
     const category = await prisma.category.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: categoryData.name,
         slug: categoryData.slug,
@@ -102,6 +106,7 @@ export async function PUT(
         }
       }
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json(category)
   } catch (error) {
@@ -115,8 +120,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -129,7 +135,7 @@ export async function DELETE(
 
     // Check if category has projects
     const projectCount = await prisma.project.count({
-      where: { categoryId: params.id },
+      where: { categoryId: id },
     })
 
     if (projectCount > 0) {
@@ -140,8 +146,9 @@ export async function DELETE(
     }
 
     await prisma.category.delete({
-      where: { id: params.id },
+      where: { id },
     })
+    revalidateTag(CONTENT_TAG)
 
     return NextResponse.json({ success: true })
   } catch (error) {
